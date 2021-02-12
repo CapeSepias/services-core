@@ -73,6 +73,13 @@ RSpec.describe Admin::ProjectsController, type: :controller do
     it { is_expected.to eq(true) }
   end
 
+  describe 'PUT banish_report' do
+    before do
+      put :banish_report, params: { id: project }
+    end
+    it { is_expected.to have_http_status(302) }
+  end
+
   describe 'PUT push_to_draft' do
     let(:project) { create(:project, state: 'rejected') }
     subject { project.draft? }
