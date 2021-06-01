@@ -1,5 +1,5 @@
 import m from 'mithril';
-import { Stream } from 'mithril/stream';
+import Stream from 'mithril/stream';
 import prop from 'mithril/stream';
 import _ from 'underscore';
 import h from '../h';
@@ -7,26 +7,18 @@ import blogVM from '../vms/blog-vm';
 import BlogBannerPost from './blog-banner-post';
 
 type BlogBannerState = {
-    posts: Stream<BlogPost[]>
+    posts: Stream<string[][][]>
     error: Stream<string | boolean>
 }
 
-type BlogPost = {
-    title: string;
-    url: string;
-    entry_id: any;
-    published: string;
-    image: string;
-    summary: string;
-}
 export default class BlogBanner implements m.Component {
     oninit({state}) {
-        const posts = prop<BlogPost[]>([])
+        const posts = prop<string[][][]>([])
         const error = prop(false)
 
         async function loadPosts() {
             try {
-                posts(parsePostsToStructure(await blogVM.getBlogPosts()))
+                posts(await blogVM.getBlogPosts())
             } catch (e) {
                 console.log('BlogBanner error', e)
                 error(e)
@@ -34,21 +26,6 @@ export default class BlogBanner implements m.Component {
                 h.redraw()
             }
         }
-
-        function parsePostsToStructure(posts: string[][][]) {
-            const stPosts : BlogPost[] = [];
-            for (const post of posts) {
-                const stPost = {};
-                for (let i = 0; i < post.length; i++) {
-                    const key = post[i][0];
-                    const value = post[i][1];
-                    stPost[key] = value;
-                }
-                stPosts.push(stPost as BlogPost);
-            }
-            return stPosts;
-        }
-
         loadPosts()
         state.posts = posts;
         state.error = error;
@@ -73,11 +50,14 @@ export default class BlogBanner implements m.Component {
                     <div class="w-row">
                         {
                             posts.map(post => {
-                                const postShrinkedContent = m.trust(`${h.strip(post.summary).substr(0, 130)}...`)
+                                const postHref = (post && post[1] && post[1][1]) || ''
+                                const postTitle = (post && post[0] && post[0][1]) || ''
+                                const postContent = (post && post[3] && post[3][1]) || ''
+                                const postShrinkedContent = m.trust(`${h.strip(postContent).substr(0, 130)}...`)
                                 return (
                                     <BlogBannerPost
-                                        href={post.url}
-                                        title={post.title}
+                                        href={postHref}
+                                        title={postTitle}
                                         summary={postShrinkedContent}
                                     />
                                 )

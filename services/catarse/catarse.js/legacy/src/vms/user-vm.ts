@@ -1,28 +1,23 @@
 import m from 'mithril';
-import prop, { Stream } from 'mithril/stream';
+import prop from 'mithril/stream';
 import _ from 'underscore';
 import { catarse, commonPayment } from '../api';
 import { UserDetails } from '../entities';
 import h from '../h';
 import models from '../models';
-import { getCurrentUserCached } from '../shared/services/user/get-current-user-cached';
-import { getUpdatedUserDetailsFromCurrentUser, getUserDetailsWithUserId } from '../shared/services/user/get-updated-current-user';
-import { isLoggedIn } from '../shared/services/user/is-logged-in';
 import projectFilters from './project-filters-vm';
 
 const idVM = h.idVM,
-    currentUser = prop({}) as Stream<UserDetails | {}>,
+    currentUser = prop({}),
     createdVM = catarse.filtersVM({ project_user_id: 'eq' }),
     myUser = h.RedrawStream<UserDetails>(null);
 
 async function getMyUser() : Promise<UserDetails | null> {
-    const currentUser = await getCurrentUserCached()
-    if (currentUser?.id && myUser() === null) {
+    if (h.getUserID() && myUser() === null) {
         try {
-            const usersLoadResult = await getUpdatedUserDetailsFromCurrentUser()
-            myUser(usersLoadResult)
-            h.redraw()
-            return usersLoadResult
+            const usersLoadResult = await fetchUser(h.getUserID(), false)
+            myUser(_.first(usersLoadResult))
+            return myUser()
         } catch(error) {
             console.log('Error loading logged in user', error)
         }
@@ -179,18 +174,30 @@ const getUserSubscribedProjects = (user_external_id, pageSize = 3) => {
     return loaderUserSubscribed.load();
 };
 
-const fetchUser = (user_id: number, handlePromise = true, customProp = currentUser): Stream<UserDetails | {}> => {
-    getUserDetailsWithUserId(user_id)
-        .then(userDetails => {
-            customProp(userDetails)
-            h.redraw()
-        })
-    return customProp;
+const fetchUser = (user_id, handlePromise = true, customProp = currentUser) => {
+    idVM.id(user_id);
+
+    const lUser = catarse.loaderWithToken(models.userDetail.getRowOptions(idVM.parameters()));
+
+    if (!handlePromise) {
+        return lUser.load();
+    } else {
+        lUser
+            .load()
+            .then(
+                _.compose(
+                    customProp,
+                    _.first
+                )
+            )
+            .then(_ => h.redraw());
+        return customProp;
+    }
 };
 
 const getCurrentUser = () => {
-    const currentUserCached = getCurrentUserCached();
-    return fetchUser(currentUserCached.id);
+    fetchUser(h.getUserID());
+    return currentUser;
 };
 
 const firstDisplayName = user => {
@@ -225,16 +232,15 @@ const displayCover = user => {
 };
 
 const getUserRecommendedProjects = contribution => {
-    const currentUser = getCurrentUserCached();
     const sample3 = _.partial(_.sample, _, 3),
         loaders = prop([]),
         collection = prop([]),
-        user_id = currentUser.id;
+        { user_id } = h.getUser();
 
     const loader = () =>
         _.reduce(
             loaders(),
-            (memo : boolean | Function, curr) => {
+            (memo, curr) => {
                 const _memo = _.isFunction(memo) ? memo() : memo,
                     _curr = _.isFunction(curr) ? curr() : curr;
 
@@ -323,7 +329,7 @@ const userVM = {
     getMailMarketingLists,
     getUserUnsubscribesProjects,
     get isLoggedIn() {
-        return isLoggedIn(getCurrentUserCached())
+        return h.getUserID() !== null;
     },
     getMyUser,
     myUser

@@ -8,7 +8,6 @@ import {
 } from '../api';
 import h from '../h';
 import models from '../models';
-import adminRefundSubscription from './admin-refund-subscription';
 
 const adminSubscriptionDetail = {
     oninit: function(vnode) {
@@ -190,9 +189,8 @@ const adminSubscriptionDetail = {
                                 h.momentify(payment.created_at, 'DD/MM/YYYY HH:mm')
                                 )
                             ),
-                        m('.w-col.w-col-6', [
+                        m('.w-col.w-col-6',
                                 m(`span.${payment.selected() ? 'link-hidden-dark' : 'alt-link'}`, {
-                                    style: 'cursor:pointer;',
                                     onclick: () => {
                                         state.clearSelected(payments);
                                         payment.selected(true);
@@ -200,11 +198,7 @@ const adminSubscriptionDetail = {
                                     }
                                 },
                                     payment.status
-                                ),
-                                (payment.status === 'paid' && (
-                                    m(adminRefundSubscription, { payment })
                                 ))
-                        ])
                     ])),
                     m('.fontweight-semibold.fontsize-smaller.lineheight-tighter.u-marginbottom-20.u-margintop-20',
                       'Notificações'

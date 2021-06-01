@@ -23,8 +23,6 @@ export type ThisWindow = Window & typeof globalThis & {
     }
 
     onpushstate(): void
-
-    CatarseAnalytics: any
 }
 
 export type CatarseAnalyticsType = {

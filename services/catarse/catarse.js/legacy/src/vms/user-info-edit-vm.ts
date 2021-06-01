@@ -6,7 +6,6 @@ import { RailsErrors } from '../entities/rails-errors'
 import _ from 'underscore'
 import { Subject, Observable } from 'rxjs'
 import { ThisWindow, I18ScopeType } from '../entities/window'
-import { getUserDetailsWithUserId } from '../shared/services/user/get-updated-current-user'
 
 declare var window : ThisWindow
 const I18nScope = _.partial(h.i18nScope, 'activerecord.errors.models') as (params? : {}) => I18ScopeType;
@@ -52,7 +51,7 @@ export class UserInfoEditViewModel {
     get error() : Observable<FieldError> {
         return this._errorObserver
     }
-
+    
     getErrors(field : string) : string[] {
         return this._errors[field] || []
     }
@@ -63,7 +62,7 @@ export class UserInfoEditViewModel {
     }
 
     async save(profileImage? : File) : Promise<boolean> {
-
+        
         try {
             this.clearErrors()
             this._isSaving = true
@@ -87,7 +86,7 @@ export class UserInfoEditViewModel {
 
             const requiredFields = [
                 'public_name',
-                'account_type',
+                'account_type', 
                 'name',
                 'cpf',
                 'birth_date',
@@ -159,7 +158,8 @@ export class UserInfoEditViewModel {
         try {
             this._isLoading = true
             h.redraw()
-            this._user = await getUserDetailsWithUserId(this.user_id)
+            const response : UserDetails[] = await userVM.fetchUser(this.user_id, false)
+            this._user = response[0]
         } catch(e) {
             //TODO: handle errors
         } finally {
@@ -246,7 +246,7 @@ export class UserInfoEditViewModel {
     private setErrorOnField(field : string, message : string) {
         this._errors[field] = (this._errors[field] || []).concat(message)
     }
-
+    
     private clearErrors() {
         this._errors = {}
     }

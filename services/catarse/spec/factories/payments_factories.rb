@@ -8,6 +8,5 @@ FactoryBot.define do
     installment_value { 10.00 }
     payment_method { 'CartaoDeCredito' }
     gateway_data { {} }
-    slip_fee { 0 }
   end
 end

@@ -6,7 +6,6 @@ class PaymentObserver < ActiveRecord::Observer
   def after_save(payment)
     contribution = payment.contribution
     contribution.notify_to_contributor(:payment_slip) if contribution.project.open_for_contributions? && payment.slip_payment? && payment.gateway_data
-    contribution.notify_to_contributor(:payment_pix) if contribution.project.open_for_contributions? && payment.pix_payment? && payment.gateway_data
   end
 
   def from_pending_to_paid(payment)
@@ -66,7 +65,7 @@ class PaymentObserver < ActiveRecord::Observer
 
   def from_paid_to_refused(payment)
     contribution = payment.contribution
-    contribution.notify_to_contributor(:contribution_canceled) unless payment.slip_payment? && payment.pix_payment?
+    contribution.notify_to_contributor(:contribution_canceled) unless payment.slip_payment?
   end
   alias from_pending_to_refused from_paid_to_refused
 

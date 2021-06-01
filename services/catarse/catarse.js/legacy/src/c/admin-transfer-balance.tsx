@@ -1,12 +1,11 @@
 import m from 'mithril';
-import prop, { Stream } from 'mithril/stream';
+import prop from 'mithril/stream';
 import _ from 'underscore';
 import h from '../h';
 import { UserDetails } from '../entities';
 import userVM from '../vms/user-vm';
 import { loadUserBalance } from  '../root/users/edit/#balance/controllers/use-cases';
 import { AdminTransferBalanceComponent } from './admin-transfer-balance-component';
-import { getUserDetailsWithUserId } from '../shared/services/user/get-updated-current-user';
 
 export enum TransferState {
     Start,
@@ -65,7 +64,10 @@ const adminTransferBalance = {
 
         const start = (toUserId : number) => {
             transferState(TransferState.Loading);
-            loadToUser(toUserId).then(() => transferState(TransferState.Confirm))
+            loadToUser(toUserId)
+                .then(() => {
+                    transferState(TransferState.Confirm);
+                })
         }
 
         const submit = () => {
@@ -82,10 +84,14 @@ const adminTransferBalance = {
             error(false);
         };
 
-        const toUser = h.RedrawStream<UserDetails | {}>(null) as Stream<UserDetails | {}>;
+        const toUser = h.RedrawStream<UserDetails>(null);
 
-        const loadToUser = async (toUserId : number) => {
-            getUserDetailsWithUserId(toUserId).then(userDetails => toUser(userDetails))
+        const loadToUser = (toUserId : number) => {
+            return userVM
+                .fetchUser(toUserId, false)
+                .then((toUserResult : UserDetails[]) => {
+                    toUser(toUserResult[0]);
+                })
         }
 
         vnode.state = {

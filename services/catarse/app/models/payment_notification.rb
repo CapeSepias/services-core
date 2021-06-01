@@ -21,10 +21,6 @@ class PaymentNotification < ApplicationRecord
     deliver_contributor_notification(:contribution_canceled_slip)
   end
 
-  def deliver_pix_canceled_notification
-    deliver_contributor_notification(:contribution_canceled_pix)
-  end
-
   private
 
   def deliver_contributor_notification(template_name)

@@ -1,3 +1,3 @@
-export type HttpHeaders = Partial<{
+export type HttpHeaders = {
     [header:string]: string
-}> & Partial<Headers>
+} & Headers

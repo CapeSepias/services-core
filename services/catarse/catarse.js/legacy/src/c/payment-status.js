@@ -35,8 +35,6 @@ const paymentStatus = {
             switch (payment.payment_method.toLowerCase()) {
             case 'boletobancario':
                 return m('span#boleto-detail', '');
-            case 'pix':
-                return m('span#pix-detail', '');
             case 'cartaodecredito':
                 var cardData = card();
                 if (cardData) {
@@ -56,8 +54,6 @@ const paymentStatus = {
                 return '.fa-barcode';
             case 'cartaodecredito':
                 return '.fa-credit-card';
-            case 'pix':
-                return '.fa-university';
             default:
                 return '.fa-question';
             }

@@ -7,7 +7,6 @@ import { I18nText } from '../../../../../../shared/components/i18n-text'
 import { CardRounded } from '../../../../../../shared/components/card-rounded'
 import h from '../../../../../../h'
 import { CurrencyFormat } from '../../../../../../shared/components/currency-format'
-import { TrustHtml } from '../../../../../../shared/components/trust-html'
 
 export type WithdrawRequestFormProps = {
     user: UserDetails
@@ -75,7 +74,7 @@ function _WithdrawRequestForm(props : WithdrawRequestFormProps) {
                     <CardRounded className='card-error u-marginbottom-20'>
                         {validationError.map((message : string) => (
                             <span>
-                                <TrustHtml html={message}/>
+                                {message}
                             </span>
                         ))}
                     </CardRounded>

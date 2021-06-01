@@ -2,7 +2,6 @@
 
 class SubscriptionPayment < ApplicationRecord
   include Shared::CommonWrapper
-  include SubscriptionPayments::RefundHandler
 
   self.table_name = 'common_schema.catalog_payments'
   self.primary_key = :id

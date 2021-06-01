@@ -1,3 +1,11 @@
+/**
+ * window.root.ProjectsExplore component
+ * A root component to show projects according to user defined filters
+ *
+ * Example:
+ * To mount this component just create a DOM element like:
+ * <div data-mithril="ProjectsExplore">
+ */
 import m from 'mithril';
 import _ from 'underscore';
 import h from '../h';
@@ -12,10 +20,8 @@ import { ProjectsExplorerFooter } from '../c/projects-explore-footer';
 import { ProjectsExploreLoadMoreButton } from '../c/projects-explore-load-more-button';
 import { defineDeepObject } from '../utils/deep-object-operators';
 import { ExploreSearchParam } from '../c/explore/explore-search-param';
-import { I18ScopeType, ThisWindow } from '../entities/window';
+import { ThisWindow } from '../entities/window';
 import ExploreMobileSearch from '../c/explore/explore-mobile-search';
-import { getCurrentUserCached } from '../shared/services/user/get-current-user-cached';
-import { isLoggedIn } from '../shared/services/user/is-logged-in';
 
 declare var window : ThisWindow
 
@@ -43,17 +49,17 @@ type ProjectExploreState = {
     }
 }
 
-const I18nScope: (arg?: any) => I18ScopeType = _.partial(h.i18nScope, 'pages.explore');
+const I18nScope = _.partial(h.i18nScope, 'pages.explore');
 
 const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = {
 
     oninit(vnode) {
-
+        
         h.scrollTop();
-        const currentUser = getCurrentUserCached();
-        const hasFBAuth = isLoggedIn(currentUser) && currentUser.has_fb_auth;
+        const currentUser = h.getUser() || {};
+        const hasFBAuth = currentUser.has_fb_auth;
         const externalLinkCategories = window.I18n.translations[window.I18n.currentLocale()].projects.index.explore_categories;
-        const hasSpecialFooter = (categoryId: number) => !_.isUndefined(externalLinkCategories[categoryId]);
+        const hasSpecialFooter = categoryId => !_.isUndefined(externalLinkCategories[categoryId]);
         const projectsExploreVM = new ProjectsExploreViewModel(getProjectsViewQuery());
 
         window.addEventListener('popstate', () => {
@@ -66,7 +72,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
 
         projectsExploreVM.subscribe({
             next(query) {
-
+                
                 h.scrollTop();
 
                 const removeQueryParams = [
@@ -77,7 +83,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
                     'city_name',
                     'filter',
                 ];
-
+                
                 h.setAndResetMultParamsArray(query, removeQueryParams);
             }
         });
@@ -88,7 +94,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
             const filter = h.paramByName('filter') || vnode.attrs.filter || 'projects_we_love';
             const category_id = Number(h.paramByName('category_id')) || vnode.attrs.category_id || null;
             const cityState = getCityStateFromSearchParams();
-
+    
             return {
                 searchParam,
                 mode,
@@ -121,7 +127,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
         window.removeEventListener('pushstate', window.onpushstate);
     },
     view({state, attrs}) {
-
+        
         const projectsExploreVM : ProjectsExploreViewModel = state.projectsExploreVM;
         const projectsCollection = projectsExploreVM.projectsView.collection();
         const isContributedByFriendsFilter = projectsExploreVM.filter === 'contributed_by_friends';
@@ -149,7 +155,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
             {
                 label: 'Projetos COVID-19',
                 value: 'covid_19',
-            },
+            },                        
         ];
 
         return m('#explore', {
@@ -177,7 +183,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
                                     m(ExploreFilterSelect, {
                                         values: modes,
                                         mobileLabel: 'MODALIDADE',
-                                        selectedItem: () => ({ label: projectsExploreVM.modeName, value: projectsExploreVM.mode }),
+                                        selectedItem: () => ({ label: projectsExploreVM.modeName, value: projectsExploreVM.mode }), 
                                         itemToString: (item : {label : string, value : string}) => item.label,
                                         isSelected: (item : {label : string, value : string}) => item.value === projectsExploreVM.mode,
                                         onSelect: (item) => projectsExploreVM.mode = item.value,
@@ -210,7 +216,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
                                         },
                                     }),
                                     [
-                                        projectsExploreVM.mode !== 'sub' &&
+                                        projectsExploreVM.mode !== 'sub' && 
                                         [
                                             m('.explore-text-fixed', 'que são'),
                                             m(ExploreFilterSelect, {
@@ -230,7 +236,7 @@ const projectsExplore : m.Component<ProjectExploreAttrs, ProjectExploreState> = 
                             ]
                     ]
                 ])
-            ]),
+            ]), 
             [
                 showProjectsFoundCounter &&
                 m(ExploreProjectsFoundCounter, {
