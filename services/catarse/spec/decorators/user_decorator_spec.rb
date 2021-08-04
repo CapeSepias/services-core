@@ -69,19 +69,14 @@ RSpec.describe UserDecorator do
   describe '#display_name' do
     subject { user.display_name }
 
-    context 'whe we have public_name and name' do
-      let(:user) { create(:user, name: 'name', public_name: 'pname') }
-      it { is_expected.to eq('pname') }
+    context 'when the user has a public name' do
+      let(:user) { create(:user, name: 'name', public_name: 'public name') }
+      it { is_expected.to eq('public name') }
     end
 
-    context 'when we have only a name' do
+    context 'when the user doesn`t have a public name' do
       let(:user) { create(:user, name: 'name', public_name: nil) }
-      it { is_expected.to eq('name') }
-    end
-
-    context 'when we have no name' do
-      let(:user) { create(:user, name: nil, public_name: nil) }
-      it { is_expected.to eq(I18n.t('user.no_name')) }
+      it { is_expected.to be_nil }
     end
   end
 
