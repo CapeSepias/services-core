@@ -10,8 +10,10 @@ import { isLoggedIn } from '../../shared/services/user/is-logged-in'
 import m from 'mithril'
 import { removeRemind } from './controllers/removeRemind'
 import { remind } from './controllers/remind'
+import './coming-soon-landing-page-bookmark-card-remind-button.css'
 
 export type ComingSoonLandingPageBookmarkCardRemindButtonProps = {
+    isProjectCard?: boolean
     project: ProjectDetails
     isFollowing: boolean
 }
@@ -20,7 +22,7 @@ export const ComingSoonLandingPageBookmarkCardRemindButton = withHooks<ComingSoo
 
 function _ComingSoonLandingPageBookmarkCardRemindButton(props: ComingSoonLandingPageBookmarkCardRemindButtonProps) {
 
-    const { project, isFollowing } = props
+    const { isProjectCard = false, project, isFollowing } = props
     const popupTimeout = useRef<NodeJS.Timeout>()
     const [isLoading, setIsLoading] = useState(false)
     const [currentUserBookmarked, setCurrentUserBookmarked] = useState(isFollowing)
@@ -102,24 +104,24 @@ function _ComingSoonLandingPageBookmarkCardRemindButton(props: ComingSoonLanding
                     message={popNotificationMessage}
                     error={isPopNotificationError} />
             }
-            <div class="back-project--btn-row">
+            <div class={isProjectCard ? "save-project-card-wrapper" : "back-project--btn-row"}>
                 {
                     isLoading ?
                         <Loader />
                         :
                         currentUserBookmarked ?
-                            <button onclick={removeRemindMe} class="btn btn-large btn-secondary">
+                            <button onclick={removeRemindMe} class={`btn ${isProjectCard ? 'btn-medium btn-terciary w-button' : 'btn-large btn-secondary'}`}>
                                 <span class="fa fa-bookmark text-success"></span>&nbsp;
                                 Projeto Salvo
                             </button>
                             :
-                            <button onclick={remindMe} class="btn btn-large">
+                            <button onclick={remindMe} class={`btn ${isProjectCard ? 'btn-medium btn-dark w-button' : 'btn-large'}`}>
                                 <span class="fa fa-bookmark-o"></span>&nbsp;
                                 Avise-me do lançamento!
                             </button>
                 }
                 {
-                    (project.reminder_count > 10 || project.is_owner_or_admin) &&
+                    ((project.reminder_count > 10 || project.is_owner_or_admin) && !isProjectCard) &&
                     <div class="fontsize-smaller fontcolor-secondary fontweight-semibold u-text-center u-margintop-10">
                         {project.reminder_count} seguidores
                     </div>
