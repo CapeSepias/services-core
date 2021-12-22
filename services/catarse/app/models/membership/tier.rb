@@ -17,7 +17,15 @@ module Membership
     validates :order, numericality: { only_integer: true }
     validate :project_mode_is_membership
 
+    before_validation :fill_order, on: :create
+
     private
+
+    def fill_order
+      return if order.present?
+
+      self.order = self.class.where(project_id: project_id).maximum(:order).to_i + 1
+    end
 
     def project_mode_is_membership
       return if project.try(:is_sub?)
