@@ -14,7 +14,7 @@ module Catarse
 
         def current_user
           @current_user ||= begin
-            result = ::Portal::Users::AuthenticateByToken.result(authorization_header: headers['Authorization'])
+            result = ::Account::Users::AuthenticateByToken.result(authorization_header: headers['Authorization'])
             result.user if result.success?
           end
         end

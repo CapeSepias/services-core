@@ -22,12 +22,25 @@ tags:
   - name: Webhooks
 
 paths:
-  /billing/credit_cards:
-    $ref: ./paths/billing/credit_cards.yml
-  /billing/installment_simulations:
-    $ref: ./paths/billing/installment_simulations.yml
-  /billing/payments:
-    $ref: ./paths/billing/payments.yml
+  /backer/billing/credit_cards:
+    $ref: ./paths/backer/billing/credit_cards.yml
+  /backer/billing/installment_simulations:
+    $ref: ./paths/backer/billing/installment_simulations.yml
+  /backer/billing/payments:
+    $ref: ./paths/backer/billing/payments.yml
+  /backer/membership/subscriptions:
+    $ref: ./paths/backer/membership/subscriptions.yml
+
+
+  /creator/membership/tiers/{tier_id}/billing_options:
+    $ref: ./paths/creator/membership/billing_options.yml
+  /creator/membership/billing_options/{id}:
+    $ref: ./paths/creator/membership/billing_option.yml
+  /creator/membership/projects/{project_id}/tiers:
+    $ref: ./paths/creator/membership/tiers.yml
+  /creator/membership/tiers/{id}:
+    $ref: ./paths/creator/membership/tier.yml
+
 
   /common/addresses:
     $ref: ./paths/common/addresses.yml
@@ -37,21 +50,11 @@ paths:
   /integrations/webhooks/{provider}:
     $ref: ./paths/integrations/webhooks.yml
 
-  /membership/tiers/{tier_id}/billing_options:
-    $ref: ./paths/membership/billing_options.yml
-  /membership/billing_options/{id}:
-    $ref: ./paths/membership/billing_option.yml
-  /membership/subscriptions:
-    $ref: ././paths/membership/subscriptions.yml
-  /membership/projects/{project_id}/tiers:
-    $ref: ./paths/membership/tiers.yml
-  /membership/tiers/{id}:
-    $ref: ./paths/membership/tier.yml
+  /account/auth_tokens:
+    $ref: ./paths/account/auth_tokens.yml
+  /account/auth_tokens/me:
+    $ref: ./paths/account/auth_tokens_me.yml
 
-  /portal/auth_tokens:
-    $ref: ./paths/portal/auth_tokens.yml
-  /portal/auth_tokens/me:
-    $ref: ./paths/portal/auth_tokens_me.yml
 components:
   schemas:
     $ref: ./schemas.yml

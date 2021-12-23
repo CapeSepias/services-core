@@ -39,7 +39,7 @@ RSpec.describe Catarse::V2::BaseAPI, type: :api do
   context 'when route requires authentication' do
     context 'when auth token is valid' do
       before do
-        allow(Portal::Users::AuthenticateByToken).to receive(:result)
+        allow(Account::Users::AuthenticateByToken).to receive(:result)
           .with(authorization_header: headers['Authorization'])
           .and_return(ServiceActor::Result.new(failure?: false, user: user))
       end
@@ -53,7 +53,7 @@ RSpec.describe Catarse::V2::BaseAPI, type: :api do
 
     context 'when auth token is invalid' do
       before do
-        allow(Portal::Users::AuthenticateByToken).to receive(:result)
+        allow(Account::Users::AuthenticateByToken).to receive(:result)
           .with(authorization_header: headers['Authorization'])
           .and_return(ServiceActor::Result.new(failure?: true))
       end
@@ -68,7 +68,7 @@ RSpec.describe Catarse::V2::BaseAPI, type: :api do
 
   describe '#public_route?' do
     before do
-      allow(Portal::Users::AuthenticateByToken).to receive(:result)
+      allow(Account::Users::AuthenticateByToken).to receive(:result)
         .with(authorization_header: headers['Authorization'])
         .and_return(ServiceActor::Result.new(failure?: false, user: user))
     end
@@ -101,7 +101,7 @@ RSpec.describe Catarse::V2::BaseAPI, type: :api do
   describe '#current_user' do
     context 'when auth token is valid' do
       before do
-        allow(Portal::Users::AuthenticateByToken).to receive(:result)
+        allow(Account::Users::AuthenticateByToken).to receive(:result)
           .with(authorization_header: headers['Authorization'])
           .and_return(ServiceActor::Result.new(failure?: false, user: user))
       end
@@ -115,7 +115,7 @@ RSpec.describe Catarse::V2::BaseAPI, type: :api do
 
     context 'when auth token is invalid' do
       before do
-        allow(Portal::Users::AuthenticateByToken).to receive(:result)
+        allow(Account::Users::AuthenticateByToken).to receive(:result)
           .with(authorization_header: headers['Authorization'])
           .and_return(ServiceActor::Result.new(failure?: true))
       end

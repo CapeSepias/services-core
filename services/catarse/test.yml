@@ -1,0 +1,827 @@
+openapi: 3.0.3
+info:
+  title: Endpoints
+  description: Rotas para a API v2 interna do Catarse
+  version: v2
+servers:
+  - url: 'https://catarse.me/api/v2'
+    description: Servidor de produção
+  - url: 'https://sandbox.catarse.me/api/v2'
+    description: Servidor de sandbox
+tags:
+  - name: Assinaturas (Apoiador)
+  - name: Cartões de Crédito
+  - name: Endereços
+  - name: Níveis de Apoio
+  - name: Opções de Cobrança (Criador)
+  - name: Pagamentos
+  - name: Países
+  - name: Simulações de Parcelamento
+  - name: Webhooks
+paths:
+  /billing/credit_cards:
+    post:
+      tags:
+        - Cartões de Crédito
+      summary: Criar cartão de crédito
+      description: Cria um novo cartão de crédito
+      requestBody:
+        description: Informações do cartão de crédito a ser criado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCreditCard'
+      responses:
+        '201':
+          description: Cartão de crédito criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditCard'
+  /billing/installment_simulations:
+    get:
+      tags:
+        - Simulações de Parcelamento
+        - Criador
+      summary: Obter simulações de parcelamento
+      description: Retorna as simulações de parcelamento
+      parameters:
+        - name: total_amount_cents
+          in: query
+          description: Informação do valor a ser parcelado
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 40000
+      responses:
+        '200':
+          description: Simulações do parcelamento
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallmentSimulation'
+  /billing/payments:
+    post:
+      tags:
+        - Pagamentos
+      summary: Criar pagamento
+      description: Cria e processa um novo pagamento
+      requestBody:
+        description: Informações do pagamento a ser criado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPayment'
+      responses:
+        '201':
+          description: Pagamento criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+  /common/addresses:
+    post:
+      tags:
+        - Endereços
+      summary: Criar endereço
+      description: Cria um novo endereço
+      requestBody:
+        description: Informações do endereço a ser criado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAddress'
+      responses:
+        '201':
+          description: Endereço criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+  /common/countries:
+    get:
+      tags:
+        - Países
+      summary: Obter países
+      description: Lista todos os países
+      responses:
+        '200':
+          description: Lista dos países disponíveis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Country'
+  '/integrations/webhooks/{provider}':
+    post:
+      tags:
+        - Webhooks
+      summary: Criar webhooks
+      description: Cria e processa um novo webhook
+      parameters:
+        - name: provider
+          in: path
+          description: Fornecedor do webhook
+          required: true
+          schema:
+            type: string
+            enum:
+              - pagar_me
+              - konduto
+      requestBody:
+        description: Conteúdo do webhook
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            example:
+              some_attr: some_value
+              other_attr: other_value
+      responses:
+        '201':
+          description: Informação com o status 'ok'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: O valor é sempre `ok`
+              example:
+                status: ok
+  '/membership/tiers/{tier_id}/billing_options':
+    get:
+      tags:
+        - Opções de Cobrança (Criador)
+      summary: Obter opções de cobrança
+      description: Lista todas as opções de cobrança de um nível de apoio
+      parameters:
+        - name: tier_id
+          in: path
+          description: ID do nível de apoio
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1234
+      responses:
+        '200':
+          description: Lista das opções de cobrança
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BillingOption'
+    post:
+      tags:
+        - Opções de Cobrança (Criador)
+      summary: Criar opção de cobrança
+      description: Cria uma nova opção de cobrança para um nível de apoio
+      parameters:
+        - name: tier_id
+          in: path
+          description: ID do nível de apoio
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1234
+      requestBody:
+        description: Informações do nível de apoio a ser criado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBillingOption'
+      responses:
+        '201':
+          description: Opção de cobrança criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingOption'
+  '/membership/billing_options/{id}':
+    put:
+      tags:
+        - Opções de Cobrança (Criador)
+      summary: Atualizar opção de cobrança
+      description: Atualiza uma opção de cobrança
+      parameters:
+        - name: id
+          in: path
+          description: ID da opção de cobrança
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1234
+      requestBody:
+        description: Informações do nível de apoio a ser criado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditBillingOption'
+      responses:
+        '200':
+          description: Opção de cobrança atualizada
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BillingOption'
+    delete:
+      tags:
+        - Opções de Cobrança (Criador)
+      summary: Remover opção de cobrança
+      description: Remove uma opção de cobrança
+      parameters:
+        - name: id
+          in: path
+          description: ID da opção de cobrança
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1234
+      responses:
+        '204':
+          description: Opção de cobrança removida com sucesso
+  /membership/subscriptions:
+    post:
+      tags:
+        - Assinaturas (Apoiador)
+      summary: Criar assinatura
+      description: Cria uma nova assinatura
+      requestBody:
+        description: Informações da assinatura a ser criada
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSubscription'
+      responses:
+        '201':
+          description: Assinatura criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+  '/membership/projects/{project_id}/tiers':
+    get:
+      tags:
+        - Níveis de Apoio
+      summary: Obter níveis de apoio
+      description: Lista todos os níveis de apoio de um projeto
+      parameters:
+        - name: project_id
+          in: path
+          description: ID do projeto de assinatura
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1234
+      responses:
+        '200':
+          description: Lista dos níveis de apoio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tier'
+    post:
+      tags:
+        - Níveis de Apoio
+      summary: Criar nível de apoio
+      description: Cria um nível de apoio para um projeto de assinatura
+      parameters:
+        - name: project_id
+          in: path
+          description: ID do projeto de assinatura
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1234
+      requestBody:
+        description: Informações do nível de apoio a ser criado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTier'
+      responses:
+        '201':
+          description: Nível de apoio criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tier'
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador único do objeto
+          example: 1234
+        user_id:
+          type: string
+          description: ID do usuário
+          example: 1234
+        country_code:
+          type: string
+          description: Código de duas letras ISO 3166-1 Alpha-2 representando o país
+          example: BR
+        postal_code:
+          type: string
+          description: CEP ou código postal
+          example: 60420400
+        line_1:
+          type: string
+          description: 'Nome da rua, avenida, rodovia, etc.'
+          example: Rua Felipe Camarão
+        line_2:
+          type: string
+          description: |
+            Complemento. ex.: Apartamento, casa, conjunto, andar, etc.
+          example: AP 104
+        number:
+          type: string
+          description: Número ou s/n
+          example: 165
+        neighborhood:
+          type: string
+          description: Bairro
+          example: Montese
+        city:
+          type: string
+          description: Cidade
+          example: Fortaleza
+        state:
+          type: string
+          description: Estado/Província
+          example: CE
+        phone_number:
+          type: string
+          description: Número de telefone caso seja necessário para concluir a entrega
+          example: (85) 4004-4040
+        first_name:
+          type: string
+          description: Nome do destinatário
+          example: John
+        last_name:
+          type: string
+          description: Sobrenome do destinatário
+          example: Doe
+        organization:
+          type: string
+          description: 'Nome da empresa, em caso de ponto comercial'
+          example: Catarse
+    BillingOption:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador único do objeto
+          example: 1234
+        cadence_in_months:
+          type: string
+          description: 'Periodicidade da cobrança em meses. Por exemplo, se o valor é 3, a cobrança é trimestral, se o valor é 12, então a cobrança é anual.'
+          example: 6
+        amount:
+          $ref: '#/components/schemas/Money'
+          description: Valor mínimo da assinatura
+        enabled:
+          type: boolean
+          description: Se essa opção de cobrança está ativda ou não.
+          example: true
+    Country:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Código de duas letras ISO 3166-1 Alpha-2 representando o país
+          example: BR
+        name:
+          type: string
+          description: Nome do país
+          example: Brasil
+    CreditCard:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador único do objeto
+          example: 1234
+        billing_address:
+          type: object
+          $ref: '#/components/schemas/Address'
+          description: Endereço de cobrança
+        holder_name:
+          type: string
+          description: Nome do titular do cartão de crédito
+          example: John Doe
+        bin:
+          type: string
+          description: Primeiros 6 dígitos do cartão de crédito
+          example: '123456'
+        last_digits:
+          type: string
+          description: Últimos 4 digitos do cartão de crédito
+          example: '1234'
+        expires_on:
+          type: string
+          format: date
+          description: Data de validade do cartão de crédito em formato ISO8601 (yyyy-mm-dd)
+          example: 2030-01-01T00:00:00.000Z
+        saved:
+          type: boolean
+          description: Se o cartão de crédito está salvo ou não
+          example: true
+    EditBillingOption:
+      type: object
+      required:
+        - billing_option
+      properties:
+        billing_option:
+          type: object
+          description: Informações da opção de cobrança
+          properties:
+            cadence_in_months:
+              type: integer
+              description: 'Periodicidade da cobrança em meses. Por exemplo, se o valor é 3, a cobrança é trimestral, se o valor é 12, então a cobrança é anual'
+              example: 6
+            amount_cents:
+              type: integer
+              description: Valor em centavos (BRL) que será cobrado a cada período da assinatura
+              example: 4000
+            enabled:
+              type: boolean
+              description: Se a opção de cobrança deve ser desabilitada ou não
+              example: true
+    EditTier:
+      type: object
+      required:
+        - tier
+      properties:
+        tier:
+          type: object
+          description: Informações do nível de apoio
+          properties:
+            name:
+              type: string
+              description: Nome do nível de apoio
+              example: Nível Ouro
+            description:
+              type: string
+              description: Descrição do nível de apoio
+              example: Os assinantes Nível Ouro têm acesso a um grupo exclusivo
+            subscribers_limit:
+              type: integer
+              description: Limite de assinantes ativos que esse nível pode ter ao mesmo tempo
+              example: 80
+            request_shipping_address:
+              type: boolean
+              description: Se é necessário solicitar o endereço de entrega ao assinar o nível de apoio
+              example: true
+    InstallmentSimulation:
+      type: object
+      properties:
+        todo:
+          type: string
+          description: TODO
+    NewAddress:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: object
+          description: Informações do endereço
+          required:
+            - country_code
+            - line_1
+            - city
+            - state
+          properties:
+            country_code:
+              type: string
+              description: Código de duas letras ISO 3166-1 Alpha-2 representando o país
+              example: BR
+            postal_code:
+              type: string
+              description: CEP ou código postal
+              example: 60420400
+            line_1:
+              type: string
+              description: 'Nome da rua, avenida, rodovia, etc.'
+              example: Rua Felipe Camarão
+            line_2:
+              type: string
+              description: |
+                Complemento. ex.: Apartamento, casa, conjunto, andar, etc.
+              example: AP 104
+            number:
+              type: string
+              description: Número ou s/n
+              example: 165
+            neighborhood:
+              type: string
+              description: Bairro
+              example: Montese
+            city:
+              type: string
+              description: Cidade
+              example: Fortaleza
+            state:
+              type: string
+              description: Estado/Província
+              example: CE
+            first_name:
+              type: string
+              description: Nome do destinatário
+              example: John
+            last_name:
+              type: string
+              description: Sobrenome do destinatário
+              example: Doe
+            organization:
+              type: string
+              description: 'Nome da empresa, em caso de ponto comercial'
+              example: Catarse
+    NewBillingOption:
+      type: object
+      required:
+        - billing_option
+      properties:
+        billing_option:
+          type: object
+          description: Informações da opção de cobrança
+          required:
+            - cadence_in_months
+            - amount_cents
+          properties:
+            cadence_in_months:
+              type: integer
+              description: 'Periodicidade da cobrança em meses. Por exemplo, se o valor é 3, a cobrança é trimestral, se o valor é 12, então a cobrança é anual.'
+              example: 6
+            amount_cents:
+              type: integer
+              description: Valor em centavos (BRL) que será cobrado a cada período da assinatura.
+              example: 4000
+    NewCreditCard:
+      type: object
+      required:
+        - credit_card
+      properties:
+        credit_card:
+          type: object
+          description: Informações do cartão de crédito
+          required:
+            - hash
+            - billing_address_id
+          properties:
+            hash:
+              type: string
+              description: 'Hash dos dados criptografados do cartão de crédito. Esse hash é gerado no cliente, evitando assim o envio de informações sensíveis para os servidores.'
+              example: d1cd4c72962bffaaaa2c92bc426129c21865526ad1cd4c72962bffaaaa2c92bc426129c21865526ad1cd4c72962bffaaaa2c92bc426129c21865526ad1cd4c72962bffaaaa2c92bc426129c21865526a
+            billing_address_id:
+              type: integer
+              description: ID do Endereço de cobrança
+              example: 1234
+            saved:
+              type: boolean
+              description: 'Se o cartão de crédito deve ser salvo ou não. Caso `true`, o cartão de crédito ficará disponível para seleção no formulário de pagamento nos próximos apoios.'
+              example: true
+    NewPayment:
+      type: object
+      required:
+        - payment
+      properties:
+        payment:
+          type: object
+          description: Informações do pagamento
+          required:
+            - payment_method
+            - installments_count
+            - payables
+          properties:
+            payment_method:
+              type: string
+              enum:
+                - boleto
+                - credit_card
+                - pix
+              description: Método do pagamento
+              example: pix
+            installments_count:
+              type: integer
+              minimum: 1
+              maximum: 6
+              description: |
+                Número de parcelas do pagamento. Para os métodos de pagamento `boleto` e `pix`, o valor desse campo deverá ser 1. Para pagamentos com cartão de crédito, é possível parcelar em até 6x.
+              example: 1
+            shipping_address_id:
+              type: integer
+              description: ID do Endereço de entrega
+              example: 1234
+            payables:
+              type: array
+              description: Informações dos items a serem pagos
+              items:
+                required:
+                  - id
+                  - type
+                properties:
+                  id:
+                    type: integer
+                    description: ID do objeto a ser pago
+                    example: 1234
+                  type:
+                    type: string
+                    enum:
+                      - Contribution
+                      - 'Membership::Subscription'
+                    description: Tipo do item a ser pago
+                    example: 'Membership::Subscription'
+            credit_card_id:
+              type: integer
+              description: ID do cartão de crédito. É obrigatório para pagamentos onde o método de pagamento é `credit_card`
+              example: 1234
+    NewSubscription:
+      type: object
+      required:
+        - subscription
+      properties:
+        subscription:
+          type: object
+          description: Informações da assinatura
+          required:
+            - billing_option_id
+            - amount_cents
+          properties:
+            billing_option_id:
+              type: integer
+              description: ID da opção de cobrança
+              example: 1234
+            amount_cents:
+              type: integer
+              description: |
+                Valor em centavos (BRL) que será cobrado a cada período da assinatura.
+                Deve ser maior ou igual ao valor da opção de cobrança
+              example: 4000
+    NewTier:
+      type: object
+      required:
+        - tier
+      properties:
+        tier:
+          type: object
+          description: Informações do nível de apoio
+          required:
+            - name
+            - description
+          properties:
+            name:
+              type: string
+              description: Nome do nível de apoio
+              example: Nível Ouro
+            description:
+              type: string
+              description: Descrição do nível de apoio
+              example: Os assinantes Nível Ouro têm acesso a um grupo exclusivo
+            subscribers_limit:
+              type: integer
+              description: Limite de assinantes ativos que esse nível pode ter ao mesmo tempo
+              example: 80
+            request_shipping_address:
+              type: boolean
+              description: Se é necessário solicitar o endereço de entrega ao assinar o nível de apoio
+              example: true
+    Money:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Valor em número decimal
+          example: '10.49'
+        currency:
+          type: string
+          description: Código de 3 dígitos representando a moeda
+          example: BRL
+        formatted:
+          type: string
+          description: Valor formatado de acordo com a moeda
+          example: R$ 10.49
+    Payment:
+      type: object
+      properties:
+        todo:
+          type: string
+          description: TODO
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador único do objeto
+          example: 1234
+        cadence_in_months:
+          type: string
+          description: 'Periodicidade da cobrança em meses. Por exemplo, se o valor é 3, a cobrança é trimestral, se o valor é 12, então a cobrança é anual.'
+          example: 6
+        state:
+          type: string
+          description: Estado da assinatura. TODO
+          example: active
+        amount:
+          $ref: '#/components/schemas/Money'
+          description: Valor da assinatura
+        user:
+          type: object
+          description: Informações do assinante
+          properties:
+            id:
+              type: integer
+              description: ID do assinante
+              example: 1234
+            name:
+              type: string
+              description: Nome do assinante
+              example: John Doe
+        project:
+          type: object
+          description: Informações do projeto
+          properties:
+            id:
+              type: integer
+              description: ID do projeto
+              example: 1234
+            name:
+              type: string
+              description: Nome do projeto
+              example: RPG de Mesa XYZ
+            permalink:
+              type: string
+              description: Permalink do projeto
+              example: rpg-de-mesa-xyz
+        tier:
+          type: object
+          description: Informações do nível de apoio
+          properties:
+            id:
+              type: integer
+              description: ID do nível de apoio
+              example: 1234
+            name:
+              type: string
+              description: Nome do nível de apoio
+              example: Plano Ouro
+        billing_option:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: ID da opção de cobrança
+              example: 1234
+    Tier:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador único do objeto
+          example: 1234
+        name:
+          type: string
+          description: Nome do nível de apoio
+          example: Nível Ouro
+        description:
+          type: string
+          description: Descrição do nível de apoio
+          example: Os assinantes Nível Ouro têm acesso a um grupo exclusivo
+        subscribers_limit:
+          type: integer
+          description: Limite de assinantes ativos que esse nível pode ter ao mesmo tempo
+          example: 80
+        request_shipping_address:
+          type: boolean
+          description: Se é necessário solicitar o endereço de entrega ao assinar o nível de apoio
+          example: true
+        order:
+          type: integer
+          description: Ordem do nível de apoio na apresentação do projeto
+          example: 3

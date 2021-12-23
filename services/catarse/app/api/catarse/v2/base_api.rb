@@ -37,11 +37,13 @@ module Catarse
         authenticate_request! unless public_route?
       end
 
-      mount Catarse::V2::Billing::BaseAPI
+      mount Catarse::V2::Admin::BaseAPI
+      mount Catarse::V2::Backer::BaseAPI
+      mount Catarse::V2::Creator::BaseAPI
+
+      mount Catarse::V2::Account::BaseAPI
       mount Catarse::V2::Common::BaseAPI
       mount Catarse::V2::Integrations::BaseAPI
-      mount Catarse::V2::Membership::BaseAPI
-      mount Catarse::V2::Portal::BaseAPI
     end
   end
 end

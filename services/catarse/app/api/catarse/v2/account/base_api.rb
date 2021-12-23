@@ -2,10 +2,10 @@
 
 module Catarse
   module V2
-    module Integrations
+    module Account
       class BaseAPI < Grape::API
-        namespace :integrations do
-          mount Catarse::V2::Integrations::WebhooksAPI
+        namespace :account do
+          mount Catarse::V2::Account::AuthTokensAPI
         end
       end
     end
