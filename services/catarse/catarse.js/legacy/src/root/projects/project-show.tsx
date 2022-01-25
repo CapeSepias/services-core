@@ -10,6 +10,7 @@ import projectVM from '../../vms/project-vm'
 import { remind } from './controllers/remind'
 import { removeRemind } from './controllers/removeRemind'
 import ProjectDashboardMenu from '../../c/project-dashboard-menu';
+import { Banner } from '../../components/Banner'
 
 type ProjectShowProps = {
     project_id: number
@@ -48,6 +49,7 @@ function _ProjectShow({ project_id, project_user_id, post_id, ...rest }: Project
 
         return (
             <>
+                <Banner type='success' content='Descrição do banner' closeButton/>
                 {
                     shouldDisplayDashboardMenu &&
                     <ProjectDashboardMenu project={projectVM.currentProject} />
