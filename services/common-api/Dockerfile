@@ -1,17 +1,12 @@
-FROM library/ruby:2.5.1-alpine
+FROM ruby:2.5.1-alpine
 
 RUN set -x \
   && apk upgrade --no-cache \
   && apk add --no-cache --virtual build-dependencies \
     build-base libc-dev linux-headers tzdata\
-    postgresql-dev postgresql-client openssl git \
-  && apk add --no-cache \
-    libxml2-dev \
-    libxslt-dev \
-  && gem install nokogiri \
-    -- --use-system-libraries \
-    --with-xml2-config=/usr/bin/xml2-config \
-    --with-xslt-config=/usr/bin/xslt-config
+    postgresql-dev postgresql-client openssl git
+RUN apk add --no-cache build-base libxml2-dev libxslt-dev
+RUN gem install nokogiri -v 1.12.5 --platform=ruby -- --use-system-libraries
 
 RUN gem install bundler -v 2.2.27
 ENV BUNDLER_VERSION=2.2.27
